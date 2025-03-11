@@ -31,10 +31,13 @@ const processImageWithAPI = async (
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Server returned ${response.status}: ${errorText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log(`Response from ${modelName}:`, data);
     
     // Extract the correct model response based on the model name
     const modelResponse = data[modelNameToKey(modelName)];

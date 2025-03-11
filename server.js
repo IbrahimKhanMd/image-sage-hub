@@ -19,6 +19,8 @@ app.post('/api/llm', async (req, res) => {
     const fullPrompt = imageData ? `${prompt} ${input || ''}` : input;
 
     try {
+        console.log("Received API request");
+        
         // For Model C, we'll use Gemini again but with a slightly modified prompt
         const modelCPrompt = `${fullPrompt} Please focus on habitat and distinctive features in your response.`;
         
@@ -46,6 +48,7 @@ app.post('/api/llm', async (req, res) => {
         const deepseekResponse = deepseekRes.data.choices?.[0]?.message?.content || "No response from DeepSeek";
         const modelCResponse = modelCRes.data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Model C";
 
+        console.log("Sending responses back to client");
         res.json({ 
             modelA: geminiResponse, 
             modelB: deepseekResponse,
