@@ -19,8 +19,11 @@ app.post('/api/llm', async (req, res) => {
     const fullPrompt = imageData ? `${prompt} ${input || ''}` : input;
 
     try {
-        // Call both APIs simultaneously using Promise.all()
-        const [geminiRes, deepseekRes] = await Promise.all([
+        // For Model C, we'll use Gemini again but with a slightly modified prompt
+        const modelCPrompt = `${fullPrompt} Please focus on habitat and distinctive features in your response.`;
+        
+        // Call APIs simultaneously using Promise.all()
+        const [geminiRes, deepseekRes, modelCRes] = await Promise.all([
             axios.post(
                 `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
                 { contents: [{ role: "user", parts: [{ text: fullPrompt }] }] },
@@ -30,21 +33,23 @@ app.post('/api/llm', async (req, res) => {
                 'https://api.deepseek.com/v1/completions',
                 { model: "deepseek-chat", messages: [{ role: "user", content: fullPrompt }] },
                 { headers: { "Authorization": `Bearer ${DEEPSEEK_API_KEY}`, "Content-Type": "application/json" } }
+            ),
+            axios.post(
+                `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+                { contents: [{ role: "user", parts: [{ text: modelCPrompt }] }] },
+                { headers: { "Content-Type": "application/json" } }
             )
         ]);
 
         // Extract and format responses
         const geminiResponse = geminiRes.data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini";
         const deepseekResponse = deepseekRes.data.choices?.[0]?.message?.content || "No response from DeepSeek";
-
-        // Mock Claude response (as we only have two API keys)
-        const claudeResponse = "Based on the image analysis, this appears to be a bird from the [Species] family. " +
-            "The distinctive features include [features]. This species is commonly found in [habitat].";
+        const modelCResponse = modelCRes.data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Model C";
 
         res.json({ 
             modelA: geminiResponse, 
             modelB: deepseekResponse,
-            modelC: claudeResponse
+            modelC: modelCResponse
         });
     } catch (error) {
         console.error("API Error:", error.message);
@@ -52,7 +57,7 @@ app.post('/api/llm', async (req, res) => {
             error: "Failed to fetch response",
             modelA: "Error fetching from Gemini API: " + error.message,
             modelB: "Error fetching from DeepSeek API: " + error.message,
-            modelC: "Error processing request."
+            modelC: "Error fetching from Gemini API (Model C): " + error.message
         });
     }
 });

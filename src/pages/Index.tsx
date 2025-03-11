@@ -152,7 +152,7 @@ const Index = () => {
               
               <ModelCard
                 title="Model C"
-                description="Claude (Simulated) - Context-aware image analysis with scene recognition"
+                description="Google Gemini (Alternative) - Focuses on habitat and distinctive features"
                 image={imageData}
                 modelResponse={modelResponses.modelC.data}
                 isLoading={modelResponses.modelC.loading}

@@ -46,7 +46,7 @@ const ModelCard = ({
       case 'Model B':
         return 'DeepSeek AI';
       case 'Model C':
-        return 'Claude (Simulated)';
+        return 'Google Gemini (Alternative)';
       default:
         return '';
     }
