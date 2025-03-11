@@ -7,8 +7,8 @@ export interface ModelResponse {
   error?: string;
 }
 
-// Endpoint for our Express server
-const API_ENDPOINT = 'http://localhost:3001/api/llm';
+// Endpoint for our Express server - use a relative URL in this environment
+const API_ENDPOINT = '/api/llm';
 
 // Common function to process image with the LLM API
 const processImageWithAPI = async (
