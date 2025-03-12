@@ -1,9 +1,14 @@
 
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import axios from 'axios';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Initialize dotenv
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
