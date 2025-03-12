@@ -12,7 +12,10 @@ const processImageWithModel = async (modelName: string, imageData: string): Prom
   try {
     console.log(`Processing image with ${modelName}...`);
     
-    const response = await fetch('/api/llm', {
+    // Ensure we're using the correct backend URL
+    const backendUrl = 'http://localhost:5000/api/llm';
+    
+    const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
