@@ -62,7 +62,7 @@ const Index = () => {
   
   const processImageWithAllModels = async (image: string) => {
     try {
-      // Process with Model A (Gemini)
+      // Process with Model A
       processImageWithModelA(image).then((response: ModelResponse) => {
         setModelResponses(prev => ({
           ...prev,
@@ -73,7 +73,7 @@ const Index = () => {
         }));
       });
       
-      // Process with Model B (DeepSeek)
+      // Process with Model B
       processImageWithModelB(image).then((response: ModelResponse) => {
         setModelResponses(prev => ({
           ...prev,
@@ -84,7 +84,7 @@ const Index = () => {
         }));
       });
       
-      // Process with Model C (Claude - Simulated)
+      // Process with Model C
       processImageWithModelC(image).then((response: ModelResponse) => {
         setModelResponses(prev => ({
           ...prev,
@@ -110,13 +110,13 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12 animate-slide-down">
           <div className="inline-block mb-3 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-medium text-gray-800 dark:text-gray-200">
-            Bird Species Recognition
+            Image Recognition
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-            Multi-Model Bird Analysis
+            Multi-Model Image Analysis
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Upload a bird image and identify its species using multiple AI models
+            Upload an image and compare results from multiple LLM models
           </p>
         </div>
         
@@ -130,13 +130,10 @@ const Index = () => {
         {showResults && (
           <div className="animate-fade-in">
             <h2 className="text-2xl font-bold mb-6 text-center">Analysis Results</h2>
-            <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-              Prompt: "Identify the species of bird in the image?"
-            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <ModelCard
                 title="Model A"
-                description="Google Gemini Pro - Visual recognition model with detailed analysis"
+                description="Open-source visual recognition model with detailed analysis"
                 image={imageData}
                 modelResponse={modelResponses.modelA.data}
                 isLoading={modelResponses.modelA.loading}
@@ -144,7 +141,7 @@ const Index = () => {
               
               <ModelCard
                 title="Model B"
-                description="DeepSeek AI - Feature extraction and object detection focused model"
+                description="Feature extraction and object detection focused model"
                 image={imageData}
                 modelResponse={modelResponses.modelB.data}
                 isLoading={modelResponses.modelB.loading}
@@ -152,7 +149,7 @@ const Index = () => {
               
               <ModelCard
                 title="Model C"
-                description="Google Gemini (Alternative) - Focuses on habitat and distinctive features"
+                description="Context-aware image analysis with scene recognition"
                 image={imageData}
                 modelResponse={modelResponses.modelC.data}
                 isLoading={modelResponses.modelC.loading}
