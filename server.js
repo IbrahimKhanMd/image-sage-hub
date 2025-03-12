@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Enable CORS and increase payload limit for image data
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'], // Add your frontend URLs
+  origin: '*', // Add your frontend URLs
   methods: ['GET', 'POST'],
   credentials: true
 }));
