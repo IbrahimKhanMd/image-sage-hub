@@ -14,7 +14,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS and increase payload limit for image data
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'], // Add your frontend URLs
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -163,6 +167,11 @@ app.post('/api/llm', async (req, res) => {
     console.error('Server error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// Debug endpoint to check if server is running
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
 });
 
 app.listen(PORT, () => {
