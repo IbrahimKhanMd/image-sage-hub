@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Enable CORS and increase payload limit for image data
 app.use(cors({
-  origin: '*', // Add your frontend URLs
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -137,7 +137,78 @@ async function processWithDeepSeek(imageData) {
   }
 }
 
-// API endpoint for image processing
+// Test Gemini API with text prompt
+async function testGeminiTextAPI() {
+  try {
+    console.log('Testing Gemini API with text prompt...');
+
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [
+              { text: "What are the prominent species of pigeon in India?" }
+            ]
+          }
+        ],
+        generation_config: {
+          temperature: 0.4,
+          max_output_tokens: 2048,
+        }
+      }
+    );
+
+    // Extract the response text
+    const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from API';
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error testing Gemini API:', error.message);
+    return {
+      success: false,
+      error: `Failed to test Gemini API: ${error.message}`
+    };
+  }
+}
+
+// Test DeepSeek API with text prompt
+async function testDeepSeekTextAPI() {
+  try {
+    console.log('Testing DeepSeek API with text prompt...');
+
+    const response = await axios.post(
+      'https://api.deepseek.com/v1/chat/completions',
+      {
+        model: "deepseek-chat-v1",
+        messages: [
+          {
+            role: "user",
+            content: "What are the prominent species of pigeon in India?"
+          }
+        ],
+        temperature: 0.5,
+        max_tokens: 2000
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        }
+      }
+    );
+
+    const result = response.data?.choices?.[0]?.message?.content || 'No response from API';
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error testing DeepSeek API:', error.message);
+    return {
+      success: false,
+      error: `Failed to test DeepSeek API: ${error.message}`
+    };
+  }
+}
+
+// API endpoints
 app.post('/api/llm', async (req, res) => {
   try {
     const { imageData, model } = req.body;
@@ -162,6 +233,27 @@ app.post('/api/llm', async (req, res) => {
         return res.status(400).json({ success: false, error: 'Invalid model specified' });
     }
     
+    return res.json(result);
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// API endpoints for testing text-based API requests
+app.get('/api/test-gemini', async (req, res) => {
+  try {
+    const result = await testGeminiTextAPI();
+    return res.json(result);
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/test-deepseek', async (req, res) => {
+  try {
+    const result = await testDeepSeekTextAPI();
     return res.json(result);
   } catch (error) {
     console.error('Server error:', error);

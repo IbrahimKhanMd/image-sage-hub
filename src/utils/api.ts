@@ -49,3 +49,60 @@ export const processImageWithModelB = async (imageData: string): Promise<ModelRe
 export const processImageWithModelC = async (imageData: string): Promise<ModelResponse> => {
   return processImageWithModel('Model C', imageData);
 };
+
+// New functions for testing text-based API requests
+export const testGeminiAPI = async (): Promise<ModelResponse> => {
+  try {
+    console.log('Testing Gemini API with text prompt...');
+    
+    const backendUrl = 'http://localhost:5000/api/test-gemini';
+    
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error testing Gemini API:', error);
+    return {
+      success: false,
+      error: `Failed to test Gemini API: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+};
+
+export const testDeepSeekAPI = async (): Promise<ModelResponse> => {
+  try {
+    console.log('Testing DeepSeek API with text prompt...');
+    
+    const backendUrl = 'http://localhost:5000/api/test-deepseek';
+    
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error testing DeepSeek API:', error);
+    return {
+      success: false,
+      error: `Failed to test DeepSeek API: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+};
