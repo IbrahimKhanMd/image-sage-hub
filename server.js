@@ -6,7 +6,6 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { get } from 'react-hook-form';
 
 // Initialize dotenv
 dotenv.config();
@@ -14,16 +13,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS and increase payload limit for image data
-app.use(cors(
- 
-));
+// Enable CORS for frontend development servers
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'],
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Get API keys from environment variables
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCdrR-fEBCYuKWzAAFMVtgQRXpH4URqCoU';
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || 'sk-68477dfc53194a30a3d26aeb7dc30b53';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 // Extract base64 image data from data URL
 const extractBase64 = (dataUrl) => {
@@ -50,9 +52,12 @@ async function processWithGeminiVision(imageData, modelName) {
     if (modelName === 'Model C') {
       prompt += " Also describe its habitat and key features.";
     }
-    console.log("before axios")
+
+    // Log API key (first few characters only, for debugging)
+    console.log(`Using Gemini API Key (first 10 chars): ${GEMINI_API_KEY.substring(0, 10)}...`);
+    
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [
           {
@@ -78,11 +83,10 @@ async function processWithGeminiVision(imageData, modelName) {
     const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from API';
     return { success: true, data: result };
   } catch (error) {
-    
-    console.error(`Error processing with ${modelName}:`, error);
+    console.error(`Error processing with ${modelName}:`, error.response?.status, error.response?.data || error.message);
     return { 
       success: false, 
-      error: `Failed to process image with ${modelName}: ${error}` 
+      error: `Failed to process image with ${modelName}: ${error.message}` 
     };
   }
 }
@@ -97,10 +101,13 @@ async function processWithDeepSeek(imageData) {
       throw new Error('Invalid image data format');
     }
 
+    // Log API key (first few characters only, for debugging)
+    console.log(`Using DeepSeek API Key (first 10 chars): ${DEEPSEEK_API_KEY.substring(0, 10)}...`);
+
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {
-        model: "deepseek-vision-v1",
+        model: "deepseek-vision",
         messages: [
           {
             role: "user",
@@ -129,7 +136,7 @@ async function processWithDeepSeek(imageData) {
     const result = response.data?.choices?.[0]?.message?.content || 'No response from API';
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error processing with Model B:', error.message);
+    console.error('Error processing with Model B:', error.response?.status, error.response?.data || error.message);
     return { 
       success: false, 
       error: `Failed to process image with Model B: ${error.message}` 
@@ -141,9 +148,12 @@ async function processWithDeepSeek(imageData) {
 async function testGeminiTextAPI() {
   try {
     console.log('Testing Gemini API with text prompt...');
+    
+    // Log API key (first few characters only, for debugging)
+    console.log(`Using Gemini API Key (first 10 chars): ${GEMINI_API_KEY.substring(0, 10)}...`);
 
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [
           {
@@ -163,7 +173,7 @@ async function testGeminiTextAPI() {
     const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from API';
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error testing Gemini API:', error.message);
+    console.error('Error testing Gemini API:', error.response?.status, error.response?.data || error.message);
     return {
       success: false,
       error: `Failed to test Gemini API: ${error.message}`
@@ -175,11 +185,14 @@ async function testGeminiTextAPI() {
 async function testDeepSeekTextAPI() {
   try {
     console.log('Testing DeepSeek API with text prompt...');
+    
+    // Log API key (first few characters only, for debugging)
+    console.log(`Using DeepSeek API Key (first 10 chars): ${DEEPSEEK_API_KEY.substring(0, 10)}...`);
 
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
       {
-        model: "deepseek-chat-v1",
+        model: "deepseek-chat", // Use text-only model for this test
         messages: [
           {
             role: "user",
@@ -200,7 +213,7 @@ async function testDeepSeekTextAPI() {
     const result = response.data?.choices?.[0]?.message?.content || 'No response from API';
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error testing DeepSeek API:', error.message);
+    console.error('Error testing DeepSeek API:', error.response?.status, error.response?.data || error.message);
     return {
       success: false,
       error: `Failed to test DeepSeek API: ${error.message}`
@@ -236,7 +249,7 @@ app.post('/api/llm', async (req, res) => {
     return res.json(result);
   } catch (error) {
     console.error('Server error:', error);
-    return res.status(500).json({ success: false, error: error });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -263,9 +276,17 @@ app.get('/api/test-deepseek', async (req, res) => {
 
 // Debug endpoint to check if server is running
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+  res.json({ status: 'ok', message: 'Server is running', 
+    apiKeys: {
+      gemini: GEMINI_API_KEY ? `${GEMINI_API_KEY.substring(0, 5)}...` : 'Not set',
+      deepseek: DEEPSEEK_API_KEY ? `${DEEPSEEK_API_KEY.substring(0, 5)}...` : 'Not set'
+    }
+  });
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`API Keys status:`);
+  console.log(`- Gemini API Key: ${GEMINI_API_KEY ? 'Set' : 'Not set'}`);
+  console.log(`- DeepSeek API Key: ${DEEPSEEK_API_KEY ? 'Set' : 'Not set'}`);
 });
