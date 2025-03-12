@@ -52,7 +52,7 @@ const ModelCard = ({
           </div>
         )}
         
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg min-h-[150px] p-4 overflow-auto">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg min-h-[200px] p-4 overflow-auto">
           {isLoading ? (
             <LoadingEffect />
           ) : modelResponse ? (
