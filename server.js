@@ -6,6 +6,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { get } from 'react-hook-form';
 
 // Initialize dotenv
 dotenv.config();
@@ -14,11 +15,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS and increase payload limit for image data
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'],
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+app.use(cors(
+ 
+));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -51,7 +50,7 @@ async function processWithGeminiVision(imageData, modelName) {
     if (modelName === 'Model C') {
       prompt += " Also describe its habitat and key features.";
     }
-
+    console.log("before axios")
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -79,10 +78,11 @@ async function processWithGeminiVision(imageData, modelName) {
     const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from API';
     return { success: true, data: result };
   } catch (error) {
-    console.error(`Error processing with ${modelName}:`, error.message);
+    
+    console.error(`Error processing with ${modelName}:`, error);
     return { 
       success: false, 
-      error: `Failed to process image with ${modelName}: ${error.message}` 
+      error: `Failed to process image with ${modelName}: ${error}` 
     };
   }
 }
@@ -236,7 +236,7 @@ app.post('/api/llm', async (req, res) => {
     return res.json(result);
   } catch (error) {
     console.error('Server error:', error);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error });
   }
 });
 
