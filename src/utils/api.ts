@@ -1,6 +1,5 @@
 
-// Simulated API calls to different LLM models
-// In a real application, this would connect to actual APIs
+// API utilities for image processing with Gemini API
 
 export interface ModelResponse {
   success: boolean;
@@ -8,58 +7,97 @@ export interface ModelResponse {
   error?: string;
 }
 
-// Simulated processing delay and response
-const simulateModelProcessing = async (modelName: string, imageData: string): Promise<ModelResponse> => {
-  // In a real implementation, this would be an actual API call
-  console.log(`Processing image with ${modelName} model...`);
-  
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000));
-  
-  const responses = {
-    'Model A': "This image appears to show a [detailed description]. The main elements include [elements]. Based on visual analysis, this likely represents [interpretation].",
-    'Model B': "Image recognized. Content identified as [content type]. Key features detected: [feature list]. Confidence score: 92%.",
-    'Model C': "Visual analysis complete. Image classification: [classification]. Objects detected: [objects]. Scene context: [context]. Image quality: High."
-  };
-  
-  return {
-    success: true,
-    data: responses[modelName as keyof typeof responses] || "Analysis completed successfully."
-  };
-};
+const GEMINI_API_KEY = 'AIzaSyCdrR-fEBCYuKWzAAFMVtgQRXpH4URqCoU';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-export const processImageWithModelA = async (imageData: string): Promise<ModelResponse> => {
+// Common Gemini API call function with different prompt styles for each model
+async function callGeminiAPI(imageData: string, modelName: string): Promise<ModelResponse> {
   try {
-    return await simulateModelProcessing('Model A', imageData);
+    console.log(`Processing image with ${modelName}...`);
+    
+    // Remove the data URL prefix to get just the base64 data
+    const base64Image = imageData.split(',')[1];
+    
+    // Different prompts for different models to get varied responses
+    let prompt = "Identify the species of bird in the image?";
+    
+    if (modelName === 'Model B') {
+      prompt = "What bird species is shown in this image? Provide details about its appearance and habitat.";
+    } else if (modelName === 'Model C') {
+      prompt = "Analyze this bird image and identify the species. Include classification details and any notable features.";
+    }
+    
+    // Gemini API request payload
+    const payload = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: "image/jpeg",
+                data: base64Image
+              }
+            }
+          ]
+        }
+      ],
+      generation_config: {
+        temperature: 0.4,
+        top_p: 1,
+        top_k: 32,
+        max_output_tokens: 2048,
+      }
+    };
+
+    // Make the API request
+    const response = await fetch(
+      `${GEMINI_API_URL}/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error (${modelName}):`, errorText);
+      return {
+        success: false,
+        error: `Failed to process image with ${modelName}: HTTP error ${response.status}`
+      };
+    }
+
+    const result = await response.json();
+    
+    // Extract the response text from the Gemini API response
+    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || 
+                         "No response text received from the model.";
+    
+    return {
+      success: true,
+      data: responseText
+    };
   } catch (error) {
-    console.error("Error processing with Model A:", error);
+    console.error(`Error processing with ${modelName}:`, error);
     return {
       success: false,
-      error: "Failed to process image with Model A"
+      error: `Failed to process image with ${modelName}: ${error instanceof Error ? error.message : String(error)}`
     };
   }
+}
+
+export const processImageWithModelA = async (imageData: string): Promise<ModelResponse> => {
+  return callGeminiAPI(imageData, 'Model A');
 };
 
 export const processImageWithModelB = async (imageData: string): Promise<ModelResponse> => {
-  try {
-    return await simulateModelProcessing('Model B', imageData);
-  } catch (error) {
-    console.error("Error processing with Model B:", error);
-    return {
-      success: false,
-      error: "Failed to process image with Model B"
-    };
-  }
+  return callGeminiAPI(imageData, 'Model B');
 };
 
 export const processImageWithModelC = async (imageData: string): Promise<ModelResponse> => {
-  try {
-    return await simulateModelProcessing('Model C', imageData);
-  } catch (error) {
-    console.error("Error processing with Model C:", error);
-    return {
-      success: false,
-      error: "Failed to process image with Model C"
-    };
-  }
+  return callGeminiAPI(imageData, 'Model C');
 };

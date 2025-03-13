@@ -1,69 +1,48 @@
-# Welcome to your Lovable project
 
-## Project info
+# Multi-Model Image Analysis with Gemini Pro Vision
 
-**URL**: https://lovable.dev/projects/ebb7d81e-dc39-448d-a54c-298f0158c398
+This application demonstrates the capabilities of the Gemini Pro Vision AI model to analyze images of birds and identify their species.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/ebb7d81e-dc39-448d-a54c-298f0158c398) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+├── src/
+│   ├── components/       # UI components
+│   │   ├── ImageUpload.tsx   # Image upload component
+│   │   ├── ModelCard.tsx     # Card to display model results
+│   │   └── LoadingEffect.tsx # Loading animation
+│   ├── pages/            # Application pages
+│   │   └── Index.tsx     # Main page
+│   ├── utils/            # Utility functions
+│   │   └── api.ts        # API integration with Gemini
+│   └── ...               # Other project files
 ```
 
-**Edit a file directly in GitHub**
+## Features
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Upload images of birds
+- Process images with three different prompting strategies using Gemini Pro Vision
+- Display analysis results in a clean, responsive interface
+- Error handling and loading states
 
-**Use GitHub Codespaces**
+## How It Works
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. User uploads an image of a bird
+2. The application sends the image to Gemini Pro Vision with three different prompts
+3. Each model provides a unique analysis of the bird species
+4. Results are displayed in separate cards for easy comparison
 
-## What technologies are used for this project?
+## API Integration
 
-This project is built with .
+The application uses the Gemini Pro Vision API for image analysis. Three different prompting strategies are used to generate varied responses:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Model A**: Basic species identification
+- **Model B**: Detailed analysis with habitat information
+- **Model C**: Classification and feature recognition
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/ebb7d81e-dc39-448d-a54c-298f0158c398) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Run the development server: `npm run dev`
+4. Open your browser and navigate to http://localhost:5173

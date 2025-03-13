@@ -116,7 +116,7 @@ const Index = () => {
             Multi-Model Image Analysis
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Upload an image and compare results from multiple LLM models
+            Upload an image and analyze it with Gemini Pro Vision AI
           </p>
         </div>
         
@@ -133,7 +133,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <ModelCard
                 title="Model A"
-                description="Open-source visual recognition model with detailed analysis"
+                description="General bird species identification"
                 image={imageData}
                 modelResponse={modelResponses.modelA.data}
                 isLoading={modelResponses.modelA.loading}
@@ -141,7 +141,7 @@ const Index = () => {
               
               <ModelCard
                 title="Model B"
-                description="Feature extraction and object detection focused model"
+                description="Detailed bird analysis with habitat information"
                 image={imageData}
                 modelResponse={modelResponses.modelB.data}
                 isLoading={modelResponses.modelB.loading}
@@ -149,7 +149,7 @@ const Index = () => {
               
               <ModelCard
                 title="Model C"
-                description="Context-aware image analysis with scene recognition"
+                description="Classification and feature recognition"
                 image={imageData}
                 modelResponse={modelResponses.modelC.data}
                 isLoading={modelResponses.modelC.loading}
